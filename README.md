@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FramerForge
 
-## Getting Started
+Production tool that extracts a **complete published Framer template** into a zip (HTML + JS + CSS + fonts + media + data), then converts it into Next.js or React with a prompt.
 
-First, run the development server:
+## What “complete” means
+
+Framer does **not** expose editable canvas/source files for published sites. This tool captures **everything the published site loads in a real browser**:
+
+1. Headless Chromium opens the URL
+2. Every GET network response is saved (scripts, stylesheets, fonts, images, media, JSON, HTML)
+3. Page is scrolled to trigger lazy-loaded assets
+4. Nested URLs inside JS/CSS bundles are discovered and downloaded
+5. Initial HTML + fully rendered DOM HTML are both saved
+6. Offline path rewrites + `manifest.json` + `COMPLETENESS.json` are packaged into one zip
+
+## Quick start
 
 ```bash
+npm install
+npx playwright install chromium
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Optional AI rewrite
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Set `AI_GATEWAY_API_KEY` for semantic Next.js/React conversion.
+Without it, convert still produces a structural framework project from the extract.
 
-## Learn More
+### Optional Blob storage
 
-To learn more about Next.js, take a look at the following resources:
+Set `BLOB_READ_WRITE_TOKEN` for production zip storage. Locally, files live under `.data/jobs/`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### `POST /api/extract`
 
-## Deploy on Vercel
+```json
+{ "url": "https://example.framer.website", "maxPages": 12 }
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Poll `GET /api/jobs/:id` and download `GET /api/jobs/:id/download`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### `POST /api/convert`
+
+JSON with `sourceJobId` + `prompt` + `framework`, or multipart zip upload.
+
+## Zip contents
+
+```
+index.html
+pages/**            # initial + *.rendered.html
+assets/js/**
+assets/css/**
+assets/fonts/**
+assets/images/**
+assets/video/**
+assets/data/**
+manifest.json
+COMPLETENESS.json
+README.md
+```
+
+## Security
+
+- SSRF checks on the seed URL
+- Private IP / metadata host blocking
+- Rate limits on extract/convert
+- Upload size/type checks

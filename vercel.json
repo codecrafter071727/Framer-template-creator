@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "src/app/api/extract/route.ts": {
+      "maxDuration": 300,
+      "memory": 2048
+    },
+    "src/app/api/convert/route.ts": {
+      "maxDuration": 300,
+      "memory": 2048
+    },
+    "src/app/api/jobs/[id]/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "src/app/api/jobs/[id]/download/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  }
+}
