@@ -5,7 +5,91 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { load } from "cheerio";
 import { applyFramelyContent, FRAMELY_REPLACEMENTS } from "./framely-content.mjs";
+import { FRAMELY_CRITICAL_HEAD, FRAMELY_PROMO_GUARD_SCRIPT } from "./framely-critical-css.mjs";
+import { appendFramelyFooter } from "./framely-footer.mjs";
+
+const FOOTER_PROMO_NAMES = ["Newsletter", "Background CTA", "CTA Card"];
+
+/** Remove newsletter / bottom CTA blocks (live outside Main) so they never paint on SSR. */
+function stripFooterPromoHtml(html) {
+  const $ = load(html);
+
+  $("div.ssr-variant").each((_, el) => {
+    const $el = $(el);
+    const hasPromo = FOOTER_PROMO_NAMES.some(
+      (name) => $el.find(`[data-framer-name="${name}"]`).length,
+    );
+    if (!hasPromo) return;
+    if ($el.find('[data-framer-name="Copyright"]').length) {
+      $el
+        .find(
+          '[data-framer-name="Newsletter"], [data-framer-name="Newsletter Form "]',
+        )
+        .each((_, node) => {
+          const $node = $(node);
+          const drop = $node.closest('[data-framer-name="Container"]');
+          (drop.length ? drop : $node).remove();
+        });
+      return;
+    }
+    $el.remove();
+  });
+
+  for (const name of FOOTER_PROMO_NAMES) {
+    $(`[data-framer-name="${name}"]`).each((_, el) => {
+      const $el = $(el);
+      if ($el.closest('[data-framer-name="Copyright"]').length) return;
+      const variant = $el.closest(".ssr-variant");
+      if (
+        variant.length &&
+        variant.find('[data-framer-name="Copyright"]').length
+      ) {
+        const drop = $el.closest('[data-framer-name="Container"]') || $el;
+        drop.remove();
+        return;
+      }
+      const host = $el.closest(".ssr-variant, footer");
+      if (host.length) host.remove();
+      else $el.remove();
+    });
+  }
+
+  appendFramelyFooter($);
+
+  return $.html();
+}
+
+const TESTIMONIAL_CAROUSEL_MARKERS = ["Mobile  1", "Desktop  1"];
+
+/** “Trusted by Innovators” / superpowers quote slider — strip before paint. */
+function stripTestimonialsCarouselHtml(html) {
+  const $ = load(html);
+
+  $("div.ssr-variant").each((_, el) => {
+    const $el = $(el);
+    const text = $el.text();
+    const hasMarker = TESTIMONIAL_CAROUSEL_MARKERS.some(
+      (name) => $el.find(`[data-framer-name="${name}"]`).length,
+    );
+    const hasEyebrow =
+      text.includes("What people are saying") ||
+      text.includes("Trusted by Innovators");
+    if (hasMarker || hasEyebrow) $el.remove();
+  });
+
+  for (const name of TESTIMONIAL_CAROUSEL_MARKERS) {
+    $(`[data-framer-name="${name}"]`).each((_, el) => {
+      const $el = $(el);
+      const host = $el.closest(".ssr-variant");
+      if (host.length) host.remove();
+      else $el.remove();
+    });
+  }
+
+  return $.html();
+}
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = path.join(ROOT, "public", "site");
@@ -25,7 +109,9 @@ async function walk(dir) {
 }
 
 function brandHtml(html) {
-  let next = applyFramelyContent(html);
+  let next = stripFooterPromoHtml(
+    stripTestimonialsCarouselHtml(applyFramelyContent(html)),
+  );
 
   next = next.replace(
     /<title>.*?<\/title>/i,
@@ -72,6 +158,38 @@ function brandHtml(html) {
     "/brand/anshul-bhathija.jpg",
   );
   next = next.replace(/alt="Alex Rivera"/g, 'alt="Anshul Bhathija"');
+
+  // Floating "Get this Template" hover card (person photo + copy).
+  next = next.replace(
+    /<div class="framer-1k941ea-container">[\s\S]*?<!--\/\$--><\/div>\s*/g,
+    "",
+  );
+
+  // Framer "Made in Framer" promo pill — must remove the full container (nested divs).
+  next = next.replace(
+    /<div id="__framer-badge-container">[\s\S]*?<!--\/\$--><!--\/\$--><!--\/\$--><\/div>\s*/g,
+    "",
+  );
+  // Clean up prior partial strips that left orphan badge nodes in the body.
+  next = next.replace(
+    /\t<div class="framer-19yaanm"[\s\S]*?<!--\/\$--><!--\/\$--><!--\/\$--><\/div>\s*/g,
+    "",
+  );
+
+  if (next.includes("id=\"framely-critical\"")) {
+  next = next.replace(
+      /(?:<link rel="preload" as="image" href="\/brand\/framely-banner\.png">\s*<link rel="preload" as="image" href="\/brand\/anshul-bhathija\.jpg">\s*)?<style id="framely-critical">[\s\S]*?<\/style>\s*(?:<script id="framely-promo-guard">[\s\S]*?<\/script>\s*)?/,
+      FRAMELY_CRITICAL_HEAD,
+    );
+  } else if (/<head[^>]*>/i.test(next)) {
+    next = next.replace(/<head[^>]*>/i, (match) => `${match}\n${FRAMELY_CRITICAL_HEAD}`);
+  } else {
+    next = `${FRAMELY_CRITICAL_HEAD}\n${next}`;
+  }
+
+  if (!next.includes("id=\"framely-promo-guard\"") && /<!doctype/i.test(next)) {
+    next = next.replace(/<body([^>]*)>/i, (match) => `${FRAMELY_PROMO_GUARD_SCRIPT}\n${match}`);
+  }
 
   if (!next.includes("/framely-bridge.js")) {
     if (next.includes("</body>")) {

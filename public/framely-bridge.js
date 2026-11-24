@@ -1,8 +1,372 @@
 (() => {
+  /** Keep in sync with scripts/framely-critical-css.mjs — applied before defer boot to avoid section flash. */
+  function injectCriticalChrome() {
+    if (document.getElementById("framely-critical")) return;
+    const style = document.createElement("style");
+    style.id = "framely-critical";
+    style.textContent = `
+#framely-panel-stack,
+#framely-panel-stack .framely-panel {
+  display: block !important;
+  visibility: visible !important;
+  max-height: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+[data-framer-name="Main"] > .ssr-variant:has([data-framer-name="CTA Card"]),
+[data-framer-name="Main"] > .ssr-variant:has([data-framer-name="Slide 1"]),
+[data-framer-name="Main"] > .ssr-variant:has([data-framer-name="Slide 1 - Mobile"]),
+[data-framer-name="Main"] > .ssr-variant:has([data-framer-name="Mobile  1"]),
+[data-framer-name="Main"] > .ssr-variant:has([data-framer-name="Desktop  1"]),
+.ssr-variant:has([data-framer-name="Mobile  1"]),
+.ssr-variant:has([data-framer-name="Desktop  1"]),
+.ssr-variant:has([data-framer-name="Newsletter"]):not(:has([data-framer-name="Copyright"])),
+.ssr-variant:has([data-framer-name="CTA Card"]):not(:has([data-framer-name="Copyright"])) {
+  display: none !important;
+  visibility: hidden !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+#main #framely-site-footer {
+  display: none !important;
+  visibility: hidden !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+#framely-site-footer {
+  display: block !important;
+  visibility: visible !important;
+  max-height: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+[data-framer-name="Buy Template Button"],
+[data-framer-name="Another one"],
+.framer-1k941ea-container,
+a.framer-gkuFO,
+.framer-1hdmz1q {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+#__framer-badge-container,
+.__framer-badge,
+a.__framer-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+[data-framer-name="Introduction Section"],
+[data-framer-name="Security Section"],
+[data-framer-name="Features Section"],
+[data-framer-name="Pricing Section"],
+[data-framer-name^="Pricing Monthly"],
+[data-framer-name="Price Wrap"],
+[data-framer-name="Integrations Section"],
+[data-framer-name="FAQ Section"],
+[data-framer-name="Newsletter"],
+[data-framer-name="Newsletter Form "],
+[data-framer-name="Background CTA"],
+[data-framer-name="CTA Card"],
+[data-framer-name="Content Wrap"]:has([data-framer-name="CTA Card"]),
+form:has(input[placeholder*="email" i]) {
+  display: none !important;
+  visibility: hidden !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+[data-framer-name="Navbar"],
+[data-framer-name="Navigation"],
+[data-framer-name="Nav Trigger"],
+[data-framely-hide="1"] {
+  display: none !important;
+  visibility: hidden !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+[data-framer-name="Hero Section"] header [data-framer-name="Brand"] {
+  display: none !important;
+}
+a[href="/manifesto"],
+a[href="/careers"],
+a[href="/pricing"],
+a[href="/manifesto/"],
+a[href="/careers/"],
+a[href="/pricing/"] {
+  display: none !important;
+}
+html:not(.framely-branded) [data-framer-name="Brand Logo"],
+html:not(.framely-branded) [data-framer-name="Brand Wrap"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+html.framely-branded [data-framer-name="Brand Logo"],
+html.framely-branded [data-framer-name="Brand Wrap"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+html:not(.framely-branded) [data-framer-name="Testimonial"] [data-framer-name="Person"],
+html:not(.framely-branded) [data-framer-name="Testimonial"] [data-framer-name="Avatar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Person"],
+html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#framely-top-logo {
+  visibility: hidden;
+}
+#framely-top-logo.framely-ready {
+  visibility: visible;
+}
+#framely-site-footer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: clamp(-20px, -2vw, -8px);
+  padding: clamp(48px, 8vw, 88px) clamp(20px, 4vw, 32px) clamp(32px, 5vw, 48px);
+  background: #0b0b0b;
+  color: rgba(255, 255, 255, 0.88);
+  border-radius: clamp(64px, 14vw, 112px) clamp(64px, 14vw, 112px) 0 0;
+  overflow: hidden;
+}
+#framely-site-footer .framely-site-footer__inner {
+  max-width: min(1080px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 3vw, 28px);
+  text-align: center;
+}
+#framely-site-footer .framely-site-footer__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+#framely-site-footer .framely-site-footer__brand img {
+  width: min(220px, 72vw);
+  height: auto;
+  display: block;
+}
+#framely-site-footer .framely-site-footer__tagline {
+  margin: 0;
+  font: 400 clamp(15px, 2.2vw, 17px) / 1.5 Geist, system-ui, sans-serif;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 36ch;
+}
+#framely-site-footer .framely-site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 22px;
+}
+#framely-site-footer .framely-site-footer__links a {
+  font: 500 14px/1.35 Geist, system-ui, sans-serif;
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+#framely-site-footer .framely-site-footer__links a:hover {
+  color: #fff;
+}
+#framely-site-footer .framely-site-footer__copy {
+  margin: 8px 0 0;
+  font: 400 13px/1.5 Geist, system-ui, sans-serif;
+  color: rgba(255, 255, 255, 0.4);
+}
+    `.trim();
+    const head = document.head || document.documentElement;
+    head.appendChild(style);
+  }
+  injectCriticalChrome();
+
+  const FRAMELY_BANNER = "/brand/framely-banner.png";
+  const FRAMELY_AVATAR = "/brand/anshul-bhathija.jpg";
+  const FOOTER_CLUTTER_NAMES = ["Newsletter", "Background CTA", "CTA Card"];
+  const TESTIMONIAL_CAROUSEL_MARKERS = ["Mobile  1", "Desktop  1"];
+
+  function stripTestimonialsCarousel() {
+    document
+      .querySelectorAll(
+        '[data-framer-name="Main"] > .ssr-variant:has([data-framer-name="Mobile  1"]), [data-framer-name="Main"] > .ssr-variant:has([data-framer-name="Desktop  1"]), .ssr-variant:has([data-framer-name="Mobile  1"]), .ssr-variant:has([data-framer-name="Desktop  1"])',
+      )
+      .forEach((el) => el.remove());
+    document.querySelectorAll("div.ssr-variant").forEach((el) => {
+      const text = el.textContent || "";
+      if (
+        text.includes("What people are saying") ||
+        text.includes("Trusted by Innovators") ||
+        text.includes("Feels like adding superpowers")
+      ) {
+        el.remove();
+      }
+    });
+    for (const name of TESTIMONIAL_CAROUSEL_MARKERS) {
+      document.querySelectorAll(`[data-framer-name="${name}"]`).forEach((el) => {
+        const host = el.closest(".ssr-variant") || el;
+        host.remove();
+      });
+    }
+  }
+
+  function stripFooterClutter() {
+    document.querySelectorAll("div.ssr-variant").forEach((el) => {
+      const hasPromo = FOOTER_CLUTTER_NAMES.some((name) =>
+        el.querySelector(`[data-framer-name="${name}"]`),
+      );
+      if (!hasPromo) return;
+      if (el.querySelector('[data-framer-name="Copyright"]')) {
+        el
+          .querySelectorAll(
+            '[data-framer-name="Newsletter"], [data-framer-name="Newsletter Form "]',
+          )
+          .forEach((node) => {
+            const drop =
+              node.closest('[data-framer-name="Container"]') || node;
+            drop.remove();
+          });
+        return;
+      }
+      el.remove();
+    });
+    for (const name of FOOTER_CLUTTER_NAMES) {
+      document.querySelectorAll(`[data-framer-name="${name}"]`).forEach((el) => {
+        const variant = el.closest(".ssr-variant");
+        if (variant?.querySelector('[data-framer-name="Copyright"]')) {
+          const drop = el.closest('[data-framer-name="Container"]') || el;
+          drop.remove();
+          return;
+        }
+        const host = el.closest(".ssr-variant") || el;
+        host.remove();
+      });
+    }
+    document.querySelectorAll('input[placeholder*="email" i]').forEach((input) => {
+      const block = input.closest("form") || input.closest("[data-framer-name]");
+      if (block) block.remove();
+    });
+  }
+
+  function pinFramelyFooter() {
+    const main = document.getElementById("main");
+    let footer = document.getElementById("framely-site-footer");
+    if (!footer) return;
+    if (main) {
+      if (footer.parentElement === main) main.after(footer);
+      else if (footer.parentElement !== document.body) {
+        document.body.appendChild(footer);
+        main.after(footer);
+      } else if (main.nextElementSibling !== footer) {
+        main.after(footer);
+      }
+    }
+    footer.style.order = "";
+  }
+
+  function mountFramelyFooter() {
+    const main = document.getElementById("main");
+    if (document.getElementById("framely-site-footer")) {
+      pinFramelyFooter();
+      return;
+    }
+    if (!main) return;
+    const footer = document.createElement("footer");
+    footer.id = "framely-site-footer";
+    footer.setAttribute("role", "contentinfo");
+    footer.innerHTML = `
+      <div class="framely-site-footer__inner">
+        <a class="framely-site-footer__brand" href="/" aria-label="Framely home">
+          <img src="/brand/framely-banner.png" alt="Framely" width="220" height="48" loading="lazy" decoding="async" />
+        </a>
+        <p class="framely-site-footer__tagline">Extract published Framer sites — ship production Next.js.</p>
+        <nav class="framely-site-footer__links" aria-label="Footer">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/changelog">Changelog</a>
+          <a href="/contact">Contact</a>
+        </nav>
+        <p class="framely-site-footer__copy">© Framely 2026. All rights reserved.</p>
+      </div>`;
+    main.after(footer);
+  }
+
+  function applyInstantBrand() {
+    stripTestimonialsCarousel();
+    stripFooterClutter();
+    mountFramelyFooter();
+    pinFramelyFooter();
+    document
+      .querySelectorAll(
+        '[data-framer-name="Buy Template Button"], .framer-1k941ea-container, a.framer-gkuFO, .framer-1hdmz1q, #__framer-badge-container, .__framer-badge, a.__framer-badge, [data-framer-name="Another one"]',
+      )
+      .forEach((el) => el.remove());
+
+    document.querySelectorAll('[data-framer-name="Brand Logo"] img').forEach((img) => {
+      if (img.getAttribute("src") !== FRAMELY_BANNER) {
+        img.setAttribute("src", FRAMELY_BANNER);
+        img.setAttribute("srcset", `${FRAMELY_BANNER} 668w`);
+        img.removeAttribute("sizes");
+      }
+      img.alt = "Framely";
+    });
+
+    document
+      .querySelectorAll('[data-framer-name="Testimonial"] img, [data-framer-name="Avatar"] img')
+      .forEach((img) => {
+        if (img.getAttribute("src") !== FRAMELY_AVATAR) {
+          img.setAttribute("src", FRAMELY_AVATAR);
+          img.setAttribute("srcset", `${FRAMELY_AVATAR} 512w`);
+          img.removeAttribute("sizes");
+        }
+        img.alt = "Anshul Bhathija";
+      });
+
+    document.querySelectorAll('img[alt*="logo badge" i]').forEach((img) => {
+      if (img.closest("#framely-top-logo")) return;
+      img.src = FRAMELY_BANNER;
+      img.alt = "Framely";
+    });
+
+    document.documentElement.classList.add("framely-branded");
+  }
+
+  function purgeFramerPromo() {
+    applyInstantBrand();
+  }
+  purgeFramerPromo();
+  if (document.documentElement && !document.documentElement.dataset.framelyPromoObs) {
+    document.documentElement.dataset.framelyPromoObs = "1";
+    new MutationObserver(purgeFramerPromo).observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["src", "srcset"],
+    });
+  }
+
   const PLACEHOLDER = "Paste a published Framer URL to download the zip…";
   const STATUS_ID = "framely-status";
 
-  /** Homepage keeps hero + benefits + process + footer only. */
+  /** Homepage keeps hero, benefits, process, convert panel, footer. */
   const KEEP_SECTIONS = new Set([
     "Hero Section",
     "Benefits Section",
@@ -16,8 +380,11 @@
     "Pricing Section",
     "Integrations Section",
     "FAQ Section",
+    "Newsletter",
     "Background CTA",
     "CTA Card",
+    "Mobile  1",
+    "Desktop  1",
     "Navbar",
     "Navigation",
     "Nav Trigger",
@@ -394,9 +761,16 @@
   }
 
   function stampFooterCurve() {
-    const copyright = document.querySelector('[data-framer-name="Copyright"]');
     const main = document.getElementById("main");
-    if (!copyright || !main) return;
+    if (!main) return;
+    pinFramelyFooter();
+    const custom = document.getElementById("framely-site-footer");
+    if (custom) {
+      custom.classList.add("framely-footer-curve");
+      return;
+    }
+    const copyright = document.querySelector('[data-framer-name="Copyright"]');
+    if (!copyright) return;
 
     let footer = copyright;
     while (footer.parentElement && footer.parentElement !== main) {
@@ -477,11 +851,8 @@
       if (host) host.style.visibility = "hidden";
     });
 
-    // Newsletter block on homepage footer
-    document.querySelectorAll('input[placeholder*="email" i]').forEach((input) => {
-      const block = input.closest("form") || input.closest("[data-framer-name]");
-      if (block) markHidden(block);
-    });
+    stripTestimonialsCarousel();
+    stripFooterClutter();
   }
 
   function rebrandFooterWordmark() {
@@ -554,6 +925,7 @@
     const header = hero.querySelector('header[data-framer-name="Default"]');
     const host = header || hero;
     if (!host.contains(wrap)) host.appendChild(wrap);
+    wrap.classList.add("framely-ready");
 
     return wrap;
   }
@@ -595,6 +967,7 @@
   }
 
   function brandChrome() {
+    applyInstantBrand();
     document.title = "Framely — Framer to Next.js";
 
     // Favicon / tab icon → Framely F
@@ -634,11 +1007,24 @@
         [data-framer-name="Price Wrap"],
         [data-framer-name="Integrations Section"],
         [data-framer-name="FAQ Section"],
+        [data-framer-name="Newsletter"],
         [data-framer-name="Background CTA"],
         [data-framer-name="CTA Card"],
+        [data-framer-name="Content Wrap"]:has([data-framer-name="CTA Card"]),
+        form:has(input[placeholder*="email" i]) {
+          display: none !important;
+          visibility: hidden !important;
+          max-height: 0 !important;
+          overflow: hidden !important;
+          pointer-events: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
         [data-framer-name="Navbar"],
         [data-framer-name="Navigation"],
         [data-framer-name="Nav Trigger"],
+        [data-framer-name="Buy Template Button"],
+        .framer-1k941ea-container,
         [data-framely-hide="1"] {
           display: none !important;
           visibility: hidden !important;
@@ -650,9 +1036,12 @@
         }
         #framely-panel-stack {
           width: 100%;
-          display: flex;
+          display: flex !important;
           flex-direction: column;
           gap: 0;
+          max-height: none !important;
+          visibility: visible !important;
+          overflow: visible !important;
         }
         .framely-panel--light {
           background: #eeeee9;
@@ -814,13 +1203,6 @@
           width: 100% !important;
           max-width: min(720px, 92%) !important;
         }
-        .framely-panel--light > [data-framer-name="Benefits Section"] [data-framer-name="Quote"],
-        .framely-panel--light > [data-framer-name="Benefits Section"] [data-framer-name="Another one"] {
-          visibility: visible !important;
-          max-height: none !important;
-          overflow: visible !important;
-          pointer-events: auto !important;
-        }
         .framely-panel--light > [data-framer-name="Benefits Section"] [data-framer-name="Quote"] {
           width: 100% !important;
           text-align: center !important;
@@ -933,6 +1315,7 @@
     rebrandHeroWordmark();
     rebrandBenefitsTestimonial();
     mountPanelLayout();
+    mountFramelyFooter();
     stampFooterCurve();
   }
 
