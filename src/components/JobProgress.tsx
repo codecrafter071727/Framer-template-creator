@@ -40,10 +40,10 @@ export function JobProgress({
           {job.status === "completed" ? (
             <a
               className="download-link"
-              href={`/api/jobs/${job.id}/download`}
+              href={job.resultBlobUrl || `/api/jobs/${job.id}/download`}
               download={job.downloadName || undefined}
             >
-              Download {job.downloadName || "zip"}
+              Download {job.downloadName || `${job.kind}.zip`}
             </a>
           ) : null}
           {job.manifest ? (

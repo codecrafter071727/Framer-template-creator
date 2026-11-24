@@ -2,18 +2,19 @@
 
 import { FormEvent, useState } from "react";
 import { JobProgress } from "@/components/JobProgress";
+import { useFramely } from "@/lib/framely-context";
 import { useJobPoller } from "@/lib/hooks/useJobPoller";
 
-export function ConvertForm({ sourceJobId }: { sourceJobId: string | null }) {
+export function ConvertForm() {
+  const { completedExtractJobId, convertJobId, setConvertJobId } = useFramely();
   const [prompt, setPrompt] = useState(
-    "Convert into a clean Next.js App Router project with reusable components, Tailwind, and accessible markup. Keep the visual hierarchy close to the original.",
+    "Build a clean Next.js App Router project with reusable components and Tailwind. Keep the Framer layout and motion cues.",
   );
   const [framework, setFramework] = useState<"nextjs" | "react">("nextjs");
   const [file, setFile] = useState<File | null>(null);
-  const [jobId, setJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const { job, error } = useJobPoller(jobId);
+  const { job, error } = useJobPoller(convertJobId);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -27,25 +28,25 @@ export function ConvertForm({ sourceJobId }: { sourceJobId: string | null }) {
         form.set("file", file);
         form.set("prompt", prompt);
         form.set("framework", framework);
-        if (sourceJobId) form.set("sourceJobId", sourceJobId);
+        if (completedExtractJobId) form.set("sourceJobId", completedExtractJobId);
         response = await fetch("/api/convert", { method: "POST", body: form });
       } else {
         response = await fetch("/api/convert", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sourceJobId,
+            sourceJobId: completedExtractJobId,
             prompt,
             framework,
           }),
         });
       }
 
-      const data = await response.json();
-      if (!response.ok) {
+      const data = (await response.json()) as { jobId?: string; error?: string };
+      if (!response.ok || !data.jobId) {
         throw new Error(data.error || "Convert failed to start");
       }
-      setJobId(data.jobId);
+      setConvertJobId(data.jobId);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Convert failed");
     } finally {
@@ -53,16 +54,17 @@ export function ConvertForm({ sourceJobId }: { sourceJobId: string | null }) {
     }
   }
 
-  const canSubmit = Boolean(file || sourceJobId) && prompt.trim().length >= 8;
+  const canSubmit =
+    Boolean(file || completedExtractJobId) && prompt.trim().length >= 8;
 
   return (
-    <section className="panel">
+    <section className="panel" id="convert" tabIndex={-1}>
       <div className="panel-head">
         <p className="step">Step 2</p>
-        <h2>Convert with a prompt</h2>
+        <h2 className="panel-title">Convert</h2>
         <p className="lede">
-          Use the extract from Step 1, or upload a zip, then describe how you want
-          the Next.js or React project shaped.
+          Use the extract from Step 1 or upload a zip, then describe the project
+          you want.
         </p>
       </div>
       <form className="stack" onSubmit={onSubmit}>
@@ -74,8 +76,8 @@ export function ConvertForm({ sourceJobId }: { sourceJobId: string | null }) {
               setFramework(event.target.value as "nextjs" | "react")
             }
           >
-            <option value="nextjs">Next.js (App Router)</option>
-            <option value="react">React (Vite)</option>
+            <option value="nextjs">Next.js</option>
+            <option value="react">React</option>
           </select>
         </label>
         <label className="field">
@@ -83,28 +85,28 @@ export function ConvertForm({ sourceJobId }: { sourceJobId: string | null }) {
           <textarea
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
-            rows={5}
+            rows={4}
             required
             minLength={8}
           />
         </label>
         <label className="field">
-          <span>Or upload extract zip</span>
+          <span>Upload zip (optional)</span>
           <input
             type="file"
             accept=".zip,application/zip"
             onChange={(event) => setFile(event.target.files?.[0] || null)}
           />
         </label>
-        {sourceJobId ? (
+        {completedExtractJobId ? (
           <p className="hint">
-            Using extract job <span className="mono">{sourceJobId.slice(0, 8)}</span>
+            Using extract <span className="mono">{completedExtractJobId.slice(0, 8)}</span>
           </p>
         ) : (
-          <p className="hint">No extract yet — upload a zip to continue.</p>
+          <p className="hint">Finish extract or upload a zip.</p>
         )}
         <button className="primary" type="submit" disabled={submitting || !canSubmit}>
-          {submitting ? "Starting…" : `Generate ${framework} zip`}
+          {submitting ? "Converting…" : `Convert to ${framework}`}
         </button>
         {formError ? <p className="error-text">{formError}</p> : null}
       </form>

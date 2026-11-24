@@ -1,10 +1,12 @@
-# FramerForge
+# Framely
 
 Production tool that extracts a **complete published Framer template** into a zip (HTML + JS + CSS + fonts + media + data), then converts it into Next.js or React with a prompt.
 
+Live product UI: marketing site + extract/convert workspace.
+
 ## What “complete” means
 
-Framer does **not** expose editable canvas/source files for published sites. This tool captures **everything the published site loads in a real browser**:
+Framer does **not** expose editable canvas/source files for published sites. Framely captures **everything the published site loads in a real browser**:
 
 1. Headless Chromium opens the URL
 2. Every GET network response is saved (scripts, stylesheets, fonts, images, media, JSON, HTML)

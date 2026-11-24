@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope, IBM_Plex_Mono } from "next/font/google";
+import { Instrument_Serif, Manrope, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Instrument_Serif({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: ["400"],
 });
 
 const body = Manrope({
@@ -23,7 +23,7 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Framely — Framer to Next.js",
   description:
-    "Extract published Framer templates into complete asset zips, then prompt-convert them into Next.js or React projects.",
+    "Extract published Framer sites into complete zips, then convert to Next.js or React.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },
@@ -32,6 +32,11 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
     shortcut: "/favicon.png",
+  },
+  openGraph: {
+    title: "Framely — Framer to Next.js",
+    description: "Extract Framer. Convert to Next.js.",
+    images: [{ url: "/brand/framely-banner.png" }],
   },
 };
 

@@ -1,74 +1,65 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect } from "react";
 import { JobProgress } from "@/components/JobProgress";
+import { useFramely } from "@/lib/framely-context";
 import { useJobPoller } from "@/lib/hooks/useJobPoller";
 
-export function ExtractForm({
-  onExtracted,
-}: {
-  onExtracted: (jobId: string) => void;
-}) {
-  const [url, setUrl] = useState("");
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const { job, error } = useJobPoller(jobId);
+export function ExtractForm() {
+  const {
+    sourceUrl,
+    setSourceUrl,
+    extractJobId,
+    startExtract,
+    startingExtract,
+    extractError,
+    clearExtractError,
+    markExtractCompleted,
+  } = useFramely();
+  const { job, error } = useJobPoller(extractJobId);
+  const busy = job?.status === "running" || job?.status === "queued";
 
   useEffect(() => {
-    if (job?.status === "completed" && jobId) {
-      onExtracted(jobId);
+    if (job?.status === "completed" && extractJobId) {
+      markExtractCompleted(extractJobId);
     }
-  }, [job?.status, jobId, onExtracted]);
+  }, [job?.status, extractJobId, markExtractCompleted]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    setFormError(null);
-    setSubmitting(true);
-    try {
-      const response = await fetch("/api/extract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, maxPages: 15 }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Extract failed to start");
-      }
-      setJobId(data.jobId);
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Extract failed");
-    } finally {
-      setSubmitting(false);
-    }
+    clearExtractError();
+    await startExtract(sourceUrl);
   }
 
   return (
-    <section className="panel">
+    <section className="panel" id="extract" tabIndex={-1}>
       <div className="panel-head">
         <p className="step">Step 1</p>
-        <h2>Extract Framer template</h2>
+        <h2 className="panel-title">Extract</h2>
         <p className="lede">
-          Paste a published Framer URL. Production CDP capture saves every network
-          file the site loads (HTML, JS, CSS, fonts, images, media, JSON), backfills
-          anything missed, then ships a gated high-accuracy zip.
+          Paste a published Framer URL. Framely captures HTML, JS, CSS, fonts,
+          images, and media into one zip.
         </p>
       </div>
       <form className="stack" onSubmit={onSubmit}>
         <label className="field">
           <span>Framer URL</span>
           <input
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            placeholder="https://your-template.framer.website"
+            value={sourceUrl}
+            onChange={(event) => setSourceUrl(event.target.value)}
+            placeholder="https://your-site.framer.website"
             required
             type="url"
           />
         </label>
-        <button className="primary" type="submit" disabled={submitting || !url}>
-          {submitting ? "Capturing every asset…" : "Extract production-complete zip"}
+        <button
+          className="primary"
+          type="submit"
+          disabled={startingExtract || !sourceUrl.trim() || busy}
+        >
+          {startingExtract || busy ? "Extracting…" : "Start extract"}
         </button>
-        {formError ? <p className="error-text">{formError}</p> : null}
+        {extractError ? <p className="error-text">{extractError}</p> : null}
       </form>
       <JobProgress job={job} error={error} />
     </section>

@@ -1,10 +1,14 @@
 import { promises as fs } from "node:fs";
+import { requireSession } from "@/lib/auth/session";
 import { readJob } from "@/lib/jobs/store";
 import { jobZipPath } from "@/lib/paths";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, { params }: Params) {
+export async function GET(request: Request, { params }: Params) {
+  const auth = await requireSession(request);
+  if (auth instanceof Response) return auth;
+
   const { id } = await params;
   const job = await readJob(id);
   if (!job) {

@@ -31,10 +31,15 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+.env*
 !.env.example
 
 # local job storage
 .data/
+
+# Framer extract workspaces (run npm run prepare:site to regenerate public/site)
+/framer-complete-*/
+/saino-exact/
 
 # vercel
 .vercel

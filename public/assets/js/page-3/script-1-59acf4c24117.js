@@ -1,0 +1,1 @@
+(function Xi(e,t){let n=document.currentScript?.parentElement;n&&n.addEventListener(`submit`,r=>{n.hasAttribute(e)||(r.preventDefault(),n.setAttribute(t,``))})})("data-framer-form-hydrated","data-framer-form-pending-submit")

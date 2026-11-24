@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { requireSession } from "@/lib/auth/session";
 import { createJob, updateJob } from "@/lib/jobs/store";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
 import { assertSafeUrl } from "@/lib/ssrf";
@@ -7,6 +8,9 @@ import { extractRequestSchema } from "@/lib/validation";
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
+  const auth = await requireSession(request);
+  if (auth instanceof Response) return auth;
+
   const limited = rateLimit(`extract:${clientKey(request)}`, 6, 60_000);
   if (!limited.ok) {
     return Response.json(

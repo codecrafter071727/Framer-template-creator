@@ -16,13 +16,21 @@ function blobToken() {
 async function persistJobToBlob(job: JobRecord) {
   const token = blobToken();
   if (!token) return;
-  await put(`jobs/${job.id}/job.json`, JSON.stringify(job, null, 2), {
-    access: "public",
-    token,
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
+  try {
+    await put(`jobs/${job.id}/job.json`, JSON.stringify(job, null, 2), {
+      access: "public",
+      token,
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+  } catch (error) {
+    // Keep local disk jobs working when Blob is unavailable/suspended.
+    console.warn(
+      "[framely] blob persist skipped:",
+      error instanceof Error ? error.message : error,
+    );
+  }
 }
 
 async function readJobFromBlob(id: string): Promise<JobRecord | null> {
