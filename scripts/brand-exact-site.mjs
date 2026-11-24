@@ -7,8 +7,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
 import { applyFramelyContent, FRAMELY_REPLACEMENTS } from "./framely-content.mjs";
-import { FRAMELY_CRITICAL_HEAD, FRAMELY_PROMO_GUARD_SCRIPT } from "./framely-critical-css.mjs";
-import { appendFramelyFooter } from "./framely-footer.mjs";
+import {
+  FRAMELY_CRITICAL_HEAD,
+  FRAMELY_PROMO_GUARD_SCRIPT,
+  FRAMELY_SPLASH_MARKUP,
+} from "./framely-critical-css.mjs";
 
 const FOOTER_PROMO_NAMES = ["Newsletter", "Background CTA", "CTA Card"];
 
@@ -55,8 +58,6 @@ function stripFooterPromoHtml(html) {
       else $el.remove();
     });
   }
-
-  appendFramelyFooter($);
 
   return $.html();
 }
@@ -108,9 +109,15 @@ async function walk(dir) {
   return out;
 }
 
+function stripCustomFramelyFooter(html) {
+  return html.replace(/<footer id="framely-site-footer"[\s\S]*?<\/footer>\s*/gi, "");
+}
+
 function brandHtml(html) {
-  let next = stripFooterPromoHtml(
-    stripTestimonialsCarouselHtml(applyFramelyContent(html)),
+  let next = stripCustomFramelyFooter(
+    stripFooterPromoHtml(
+      stripTestimonialsCarouselHtml(applyFramelyContent(html)),
+    ),
   );
 
   next = next.replace(
@@ -118,7 +125,6 @@ function brandHtml(html) {
     "<title>Framely — Framer to Next.js</title>",
   );
 
-  // Favicons → Framely F
   next = next.replace(
     /<link href="\/assets\/images\/framerusercontent\.com\/[^"]+" rel="icon"[^>]*>/g,
     '<link href="/brand/framely-icon.png" rel="icon" type="image/png">',
@@ -140,45 +146,36 @@ function brandHtml(html) {
     'name="twitter:title" content="Framely — Framer to Next.js"',
   );
 
-  // Footer “Brand Logo” wordmark PNG still spells Saino in the extract.
   next = next.replace(
     /\/assets\/images\/framerusercontent\.com\/hofmq5gUf5i5thCwxG7fnDhzL8-[^"'\s]+/g,
     "/brand/framely-banner.png",
   );
-
-  // Hero / CTA “logo badge” PNG is still Saino artwork in the extract.
   next = next.replace(
     /\/assets\/images\/framerusercontent\.com\/jEdLYTzGeRHmLrNr9VhoDJl8ZY4-[^"'\s]+/g,
     "/brand/framely-banner.png",
   );
-
-  // Benefits testimonial avatar → Anshul Bhathija
   next = next.replace(
     /\/assets\/images\/framerusercontent\.com\/mBmrUBypuHFkhhz42OM4ZotDnJM-[^"'\s]+/g,
     "/brand/anshul-bhathija.jpg",
   );
   next = next.replace(/alt="Alex Rivera"/g, 'alt="Anshul Bhathija"');
 
-  // Floating "Get this Template" hover card (person photo + copy).
   next = next.replace(
     /<div class="framer-1k941ea-container">[\s\S]*?<!--\/\$--><\/div>\s*/g,
     "",
   );
-
-  // Framer "Made in Framer" promo pill — must remove the full container (nested divs).
   next = next.replace(
     /<div id="__framer-badge-container">[\s\S]*?<!--\/\$--><!--\/\$--><!--\/\$--><\/div>\s*/g,
     "",
   );
-  // Clean up prior partial strips that left orphan badge nodes in the body.
   next = next.replace(
     /\t<div class="framer-19yaanm"[\s\S]*?<!--\/\$--><!--\/\$--><!--\/\$--><\/div>\s*/g,
     "",
   );
 
-  if (next.includes("id=\"framely-critical\"")) {
-  next = next.replace(
-      /(?:<link rel="preload" as="image" href="\/brand\/framely-banner\.png">\s*<link rel="preload" as="image" href="\/brand\/anshul-bhathija\.jpg">\s*)?<style id="framely-critical">[\s\S]*?<\/style>\s*(?:<script id="framely-promo-guard">[\s\S]*?<\/script>\s*)?/,
+  if (next.includes('id="framely-critical"')) {
+    next = next.replace(
+      /(?:<link rel="preload" as="image" href="\/brand\/framely-icon\.png">\s*)?(?:<link rel="preload" as="image" href="\/brand\/framely-banner\.png">\s*<link rel="preload" as="image" href="\/brand\/anshul-bhathija\.jpg">\s*)?<style id="framely-critical">[\s\S]*?<\/style>\s*(?:<script id="framely-promo-guard">[\s\S]*?<\/script>\s*)?/,
       FRAMELY_CRITICAL_HEAD,
     );
   } else if (/<head[^>]*>/i.test(next)) {
@@ -187,8 +184,17 @@ function brandHtml(html) {
     next = `${FRAMELY_CRITICAL_HEAD}\n${next}`;
   }
 
-  if (!next.includes("id=\"framely-promo-guard\"") && /<!doctype/i.test(next)) {
+  if (!next.includes('id="framely-promo-guard"') && /<!doctype/i.test(next)) {
     next = next.replace(/<body([^>]*)>/i, (match) => `${FRAMELY_PROMO_GUARD_SCRIPT}\n${match}`);
+  }
+
+  if (next.includes('id="framely-splash"')) {
+    next = next.replace(
+      /<div id="framely-splash"[\s\S]*?<\/div>\s*<script id="framely-splash-boot">[\s\S]*?<\/script>\s*/,
+      `${FRAMELY_SPLASH_MARKUP}\n`,
+    );
+  } else if (/<body[^>]*>/i.test(next)) {
+    next = next.replace(/<body([^>]*)>/i, (match) => `${match}\n${FRAMELY_SPLASH_MARKUP}`);
   }
 
   if (!next.includes("/framely-bridge.js")) {

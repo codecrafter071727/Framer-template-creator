@@ -28,19 +28,12 @@
   overflow: hidden !important;
   pointer-events: none !important;
 }
-#main #framely-site-footer {
+#framely-site-footer {
   display: none !important;
   visibility: hidden !important;
   max-height: 0 !important;
   overflow: hidden !important;
   pointer-events: none !important;
-}
-#framely-site-footer {
-  display: block !important;
-  visibility: visible !important;
-  max-height: none !important;
-  overflow: visible !important;
-  pointer-events: auto !important;
 }
 [data-framer-name="Buy Template Button"],
 [data-framer-name="Another one"],
@@ -136,68 +129,131 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
 #framely-top-logo.framely-ready {
   visibility: visible;
 }
-#framely-site-footer {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  margin-top: clamp(-20px, -2vw, -8px);
-  padding: clamp(48px, 8vw, 88px) clamp(20px, 4vw, 32px) clamp(32px, 5vw, 48px);
-  background: #0b0b0b;
-  color: rgba(255, 255, 255, 0.88);
-  border-radius: clamp(64px, 14vw, 112px) clamp(64px, 14vw, 112px) 0 0;
-  overflow: hidden;
+#main,
+[data-framer-name="Main"],
+[data-framer-name="Hero Section"],
+[data-framer-name="Benefits Section"],
+[data-framer-name="Process Section"] {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
-#framely-site-footer .framely-site-footer__inner {
-  max-width: min(1080px, 100%);
-  margin: 0 auto;
+#framely-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(20px, 3vw, 28px);
-  text-align: center;
-}
-#framely-site-footer .framely-site-footer__brand {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  text-decoration: none;
-}
-#framely-site-footer .framely-site-footer__brand img {
-  width: min(220px, 72vw);
-  height: auto;
-  display: block;
-}
-#framely-site-footer .framely-site-footer__tagline {
+  gap: 18px;
   margin: 0;
-  font: 400 clamp(15px, 2.2vw, 17px) / 1.5 Geist, system-ui, sans-serif;
-  color: rgba(255, 255, 255, 0.55);
-  max-width: 36ch;
-}
-#framely-site-footer .framely-site-footer__links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px 22px;
-}
-#framely-site-footer .framely-site-footer__links a {
-  font: 500 14px/1.35 Geist, system-ui, sans-serif;
-  color: rgba(255, 255, 255, 0.72);
-  text-decoration: none;
-  transition: color 140ms ease;
-}
-#framely-site-footer .framely-site-footer__links a:hover {
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, rgba(255, 120, 40, 0.16), transparent 62%),
+    #0a0a0a;
   color: #fff;
+  transition: opacity 0.55s ease, visibility 0.55s ease;
 }
-#framely-site-footer .framely-site-footer__copy {
-  margin: 8px 0 0;
-  font: 400 13px/1.5 Geist, system-ui, sans-serif;
-  color: rgba(255, 255, 255, 0.4);
+#framely-splash.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#framely-splash img {
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+  object-fit: cover;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  animation: framely-splash-pop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+#framely-splash span {
+  font: 650 28px/1.1 "Geist", "Inter", system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  animation: framely-splash-fade 0.7s ease 0.12s both;
+}
+#framely-splash .framely-splash-line {
+  width: min(160px, 42vw);
+  height: 2px;
+  margin-top: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+  animation: framely-splash-fade 0.7s ease 0.18s both;
+}
+#framely-splash .framely-splash-line > i {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff7a28, #ffb347, #ff7a28);
+  background-size: 200% 100%;
+  animation:
+    framely-splash-load 1.15s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards,
+    framely-splash-shimmer 1.1s linear 0.2s infinite;
+}
+#framely-splash.is-done .framely-splash-line > i {
+  width: 100%;
+  animation: none;
+  background: linear-gradient(90deg, #ff7a28, #ffb347);
+}
+@keyframes framely-splash-pop {
+  from { opacity: 0; transform: scale(0.86); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes framely-splash-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes framely-splash-load {
+  0% { width: 0%; }
+  70% { width: 78%; }
+  100% { width: 100%; }
+}
+@keyframes framely-splash-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+html.framely-splash-lock,
+html.framely-splash-lock body {
+  overflow: hidden !important;
 }
     `.trim();
     const head = document.head || document.documentElement;
     head.appendChild(style);
   }
   injectCriticalChrome();
+
+  function ensureSplash() {
+    if (document.getElementById("framely-splash")) return;
+    if (document.documentElement.dataset.framelySplashSkipped === "1") return;
+    const splash = document.createElement("div");
+    splash.id = "framely-splash";
+    splash.setAttribute("role", "presentation");
+    splash.setAttribute("aria-hidden", "true");
+    splash.innerHTML =
+      '<img src="/brand/framely-icon.png" width="84" height="84" alt="Framely" />' +
+      "<span>Framely</span>" +
+      '<div class="framely-splash-line" aria-hidden="true"><i></i></div>';
+    document.documentElement.classList.add("framely-splash-lock");
+    const host = document.body || document.documentElement;
+    host.prepend(splash);
+    const start = Date.now();
+    const finish = () => {
+      if (!splash.isConnected || splash.classList.contains("is-done")) return;
+      splash.classList.add("is-done");
+      document.documentElement.classList.remove("framely-splash-lock");
+      setTimeout(() => splash.remove(), 600);
+    };
+    const onReady = () => {
+      const wait = Math.max(0, 1200 - (Date.now() - start));
+      setTimeout(finish, wait);
+    };
+    if (document.readyState === "complete") onReady();
+    else window.addEventListener("load", onReady);
+    setTimeout(finish, 2800);
+  }
+  ensureSplash();
 
   const FRAMELY_BANNER = "/brand/framely-banner.png";
   const FRAMELY_AVATAR = "/brand/anshul-bhathija.jpg";
@@ -266,54 +322,14 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
     });
   }
 
-  function pinFramelyFooter() {
-    const main = document.getElementById("main");
-    let footer = document.getElementById("framely-site-footer");
-    if (!footer) return;
-    if (main) {
-      if (footer.parentElement === main) main.after(footer);
-      else if (footer.parentElement !== document.body) {
-        document.body.appendChild(footer);
-        main.after(footer);
-      } else if (main.nextElementSibling !== footer) {
-        main.after(footer);
-      }
-    }
-    footer.style.order = "";
-  }
-
-  function mountFramelyFooter() {
-    const main = document.getElementById("main");
-    if (document.getElementById("framely-site-footer")) {
-      pinFramelyFooter();
-      return;
-    }
-    if (!main) return;
-    const footer = document.createElement("footer");
-    footer.id = "framely-site-footer";
-    footer.setAttribute("role", "contentinfo");
-    footer.innerHTML = `
-      <div class="framely-site-footer__inner">
-        <a class="framely-site-footer__brand" href="/" aria-label="Framely home">
-          <img src="/brand/framely-banner.png" alt="Framely" width="220" height="48" loading="lazy" decoding="async" />
-        </a>
-        <p class="framely-site-footer__tagline">Extract published Framer sites — ship production Next.js.</p>
-        <nav class="framely-site-footer__links" aria-label="Footer">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-          <a href="/changelog">Changelog</a>
-          <a href="/contact">Contact</a>
-        </nav>
-        <p class="framely-site-footer__copy">© Framely 2026. All rights reserved.</p>
-      </div>`;
-    main.after(footer);
+  function removeCustomSiteFooter() {
+    document.getElementById("framely-site-footer")?.remove();
   }
 
   function applyInstantBrand() {
     stripTestimonialsCarousel();
     stripFooterClutter();
-    mountFramelyFooter();
-    pinFramelyFooter();
+    removeCustomSiteFooter();
     document
       .querySelectorAll(
         '[data-framer-name="Buy Template Button"], .framer-1k941ea-container, a.framer-gkuFO, .framer-1hdmz1q, #__framer-badge-container, .__framer-badge, a.__framer-badge, [data-framer-name="Another one"]',
@@ -349,19 +365,16 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
     document.documentElement.classList.add("framely-branded");
   }
 
+  let promoGuardPending = false;
   function purgeFramerPromo() {
-    applyInstantBrand();
-  }
-  purgeFramerPromo();
-  if (document.documentElement && !document.documentElement.dataset.framelyPromoObs) {
-    document.documentElement.dataset.framelyPromoObs = "1";
-    new MutationObserver(purgeFramerPromo).observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["src", "srcset"],
+    if (promoGuardPending) return;
+    promoGuardPending = true;
+    requestAnimationFrame(() => {
+      promoGuardPending = false;
+      applyInstantBrand();
     });
   }
+  purgeFramerPromo();
 
   const PLACEHOLDER = "Paste a published Framer URL to download the zip…";
   const STATUS_ID = "framely-status";
@@ -638,10 +651,12 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
   }
 
   function applyRuntimeCopy(pairs) {
+    const root = document.getElementById("main");
+    if (!root || !pairs.length) return;
     for (const [from, to] of pairs) {
       if (!from || from.length < 2) continue;
       const walker = document.createTreeWalker(
-        document.body,
+        root,
         NodeFilter.SHOW_TEXT,
       );
       let node;
@@ -730,16 +745,48 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
     return panel;
   }
 
-  function mountPanelLayout() {
-    if (document.getElementById("framely-panel-stack")) return;
+  function withPreservedScroll(fn) {
+    const x = window.scrollX;
+    const y = window.scrollY;
+    try {
+      fn();
+    } finally {
+      if (window.scrollX !== x || window.scrollY !== y) {
+        window.scrollTo(x, y);
+      }
+    }
+  }
 
+  function needsChromeRefresh() {
+    const layout = document.querySelector('[data-framer-name="Main"]');
+    if (!layout) return false;
+    const stack = document.getElementById("framely-panel-stack");
+    const benefits = layout.querySelector(
+      '[data-framer-name="Benefits Section"]',
+    );
+    const process = layout.querySelector(
+      '[data-framer-name="Process Section"]',
+    );
+    if (!document.getElementById("framely-top-logo")) return true;
+    if (!stack) return Boolean(benefits && process);
+    if (benefits && !stack.contains(benefits)) return true;
+    if (process && !stack.contains(process)) return true;
+    return false;
+  }
+
+  function mountPanelLayout() {
     const layout = document.querySelector('[data-framer-name="Main"]');
     const hero = layout?.querySelector('[data-framer-name="Hero Section"]');
     const benefits = layout?.querySelector('[data-framer-name="Benefits Section"]');
     const process = layout?.querySelector('[data-framer-name="Process Section"]');
     if (!layout || !hero || !benefits || !process) return;
 
-    const stack = document.createElement("div");
+    let stack = document.getElementById("framely-panel-stack");
+    // Framer hydrate can remount sections outside our stack — rebuild when that happens.
+    if (stack && stack.contains(benefits) && stack.contains(process)) return;
+    if (stack) stack.remove();
+
+    stack = document.createElement("div");
     stack.id = "framely-panel-stack";
 
     const whiteTop = document.createElement("div");
@@ -763,12 +810,7 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
   function stampFooterCurve() {
     const main = document.getElementById("main");
     if (!main) return;
-    pinFramelyFooter();
-    const custom = document.getElementById("framely-site-footer");
-    if (custom) {
-      custom.classList.add("framely-footer-curve");
-      return;
-    }
+    removeCustomSiteFooter();
     const copyright = document.querySelector('[data-framer-name="Copyright"]');
     if (!copyright) return;
 
@@ -812,19 +854,14 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
       )
       .forEach((el) => markHidden(el));
 
-    document.querySelectorAll("p, span, a").forEach((el) => {
-      const text = (el.textContent || "").trim();
-      if (text === "Pricing" || text === "Careers") {
-        const link = el.closest("a") || el;
-        markHidden(link.closest("[data-framer-name]") || link.parentElement);
-      }
-    });
   }
 
   function removeLaunchClutter() {
+    const root = document.getElementById("main");
+    if (!root) return;
     simplifyLandingPage();
     hidePricingAndCareers();
-    document.querySelectorAll("a, button").forEach((el) => {
+    root.querySelectorAll("a, button").forEach((el) => {
       const label = (el.textContent || "").trim().toLowerCase();
       const href = (el.getAttribute("href") || "").toLowerCase();
       if (
@@ -942,6 +979,13 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
       logo.classList.toggle("is-floating", window.scrollY > threshold);
     };
 
+    // Stay on the same page when already home — avoid a hard reload to the hero.
+    logo.addEventListener("click", (event) => {
+      if (location.pathname !== "/" && location.pathname !== "") return;
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
     update();
@@ -967,6 +1011,13 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
   }
 
   function brandChrome() {
+    if (document.documentElement.dataset.framelyChromeDone === "1") return;
+    withPreservedScroll(() => {
+      brandChromeInner();
+    });
+  }
+
+  function brandChromeInner() {
     applyInstantBrand();
     document.title = "Framely — Framer to Next.js";
 
@@ -1315,8 +1366,9 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
     rebrandHeroWordmark();
     rebrandBenefitsTestimonial();
     mountPanelLayout();
-    mountFramelyFooter();
+    removeCustomSiteFooter();
     stampFooterCurve();
+    document.documentElement.dataset.framelyChromeDone = "1";
   }
 
   function wireGetStartedActions() {
@@ -1409,28 +1461,41 @@ html.framely-branded [data-framer-name="Testimonial"] [data-framer-name="Avatar"
 
   async function boot() {
     wireGetStartedActions();
-    const pairs = await loadReplacements();
-    applyRuntimeCopy(pairs);
     brandChrome();
     wireHeroChat();
+    loadReplacements()
+      .then((pairs) => applyRuntimeCopy(pairs))
+      .catch(() => {});
     authSnapshot = await loadAuthState();
     await resumePendingExtract();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
+    document.addEventListener("DOMContentLoaded", () => {
+      boot().catch(() => {});
+    });
   } else {
-    boot();
+    boot().catch(() => {});
   }
 
-  // Framer hydrates async — re-apply branding + wiring
-  let tries = 0;
-  const timer = setInterval(async () => {
-    tries += 1;
-    const pairs = await loadReplacements();
-    applyRuntimeCopy(pairs);
-    brandChrome();
+  // Re-apply Framely chrome after Framer hydrates — only when DOM was remounted.
+  // Blindly clearing the flag + remounting panels was jumping scroll back to the hero.
+  try {
+    if ("scrollRestoration" in history) history.scrollRestoration = "auto";
+  } catch {
+    /* ignore */
+  }
+
+  let hydrateTries = 0;
+  const hydrateTimer = setInterval(() => {
+    hydrateTries += 1;
+    if (needsChromeRefresh()) {
+      document.documentElement.dataset.framelyChromeDone = "";
+      brandChrome();
+    } else {
+      applyInstantBrand();
+    }
     wireHeroChat();
-    if (tries > 40) clearInterval(timer);
-  }, 500);
+    if (hydrateTries >= 6) clearInterval(hydrateTimer);
+  }, 700);
 })();
